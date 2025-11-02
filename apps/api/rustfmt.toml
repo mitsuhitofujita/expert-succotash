@@ -1,0 +1,98 @@
+# rustfmt.toml
+# Rustフォーマッターの設定ファイル
+# プロジェクト固有のコードスタイルを定義
+
+# 注意: 多くのrustfmt設定はnightlyチャンネルでのみ利用可能です。
+# 以下の設定はstableチャンネルで使用可能な設定のみを含んでいます。
+
+# Rust Edition（明示的に指定）
+edition = "2024"
+
+# === 行幅とインデント ===
+
+# 1行の最大文字数（デフォルト: 100）
+max_width = 100
+
+# インデントのスペース数（デフォルト: 4）
+tab_spaces = 4
+
+# ハードタブを使用するか（デフォルト: false）
+hard_tabs = false
+
+# === 関数とメソッド ===
+
+# 関数呼び出しの引数レイアウトの最大幅（デフォルト: 60）
+# この幅を超えた場合、引数を改行して配置する
+fn_call_width = 60
+
+# === 構造体とEnum ===
+
+# 構造体リテラルのフィールド初期化で省略記法を使う（デフォルト: false）
+# 例: User { name: name } → User { name }
+use_field_init_shorthand = true
+
+# === チェーン ===
+
+# メソッドチェーンの改行の最大幅（デフォルト: 60）
+# この幅を超えた場合、チェーンを改行する
+chain_width = 60
+
+# === その他 ===
+
+# ネストされた括弧を削除する（デフォルト: true）
+remove_nested_parens = true
+
+# try!マクロを?演算子に変換する（デフォルト: true）
+use_try_shorthand = true
+
+# === Nightlyチャンネルで利用可能な追加設定 ===
+#
+# nightlyチャンネルを使用している場合、以下の設定も有効にすることができます:
+#
+# unstable_features = true
+#
+# # use文をグループ化して整理する
+# # std, 外部クレート, 内部モジュールの順にグループ化
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
+#
+# # 構造体の最後のカンマ
+# # "Vertical": 縦並びの場合は末尾カンマを付ける
+# trailing_comma = "Vertical"
+#
+# # コメントの最大幅
+# comment_width = 100
+#
+# # コードを説明的なコメント形式にする
+# normalize_comments = false
+#
+# # ドキュメントコメント内のコードブロックをフォーマットする
+# format_code_in_doc_comments = true
+#
+# # 文字列リテラルをフォーマットする
+# format_strings = false
+#
+# # マクロをフォーマットする
+# format_macro_bodies = true
+#
+# # 単一式のクロージャを1行にまとめる
+# fn_single_line = false
+#
+# # スペースの配置を正規化する
+# normalize_doc_attributes = false
+#
+# # match式の腕をブロック形式にする
+# match_arm_blocks = true
+#
+# # 関数の引数レイアウト
+# # "Tall": 長い場合は縦に並べる
+# # "Compressed": 可能な限り圧縮
+# fn_params_layout = "Tall"
+
+# === Web APIプロジェクト固有の設定 ===
+
+# 現在の設定はstableチャンネルで動作します。
+# より詳細なフォーマット制御が必要な場合は、nightlyチャンネルの使用を検討してください。
+
+# オプション: より短い行幅を好む場合は以下を有効化
+# max_width = 90

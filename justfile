@@ -5,6 +5,10 @@
 default:
     @just --list
 
+# コンパイルチェック（ビルドせずに型チェックのみ）
+check:
+    cd apps/api && cargo check
+
 # APIサーバーのビルド
 build:
     cd apps/api && cargo build
@@ -16,6 +20,10 @@ build-release:
 # APIサーバーの起動
 run:
     cd apps/api && cargo run
+
+# 開発サーバーの起動（ホットリロード付き）
+dev:
+    cd apps/api && cargo watch -x run
 
 # APIサーバーの起動確認（ビルド → 起動 → ヘルスチェック）
 check-server:
@@ -56,9 +64,17 @@ fmt-check:
 lint:
     cd apps/api && cargo clippy --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery
 
+# リンターの監視モード（ファイル変更時に自動実行）
+watch-lint:
+    cd apps/api && cargo watch -x 'clippy --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery'
+
 # テストの実行
 test:
     cd apps/api && cargo test
+
+# テストの監視モード（ファイル変更時に自動実行）
+watch-test:
+    cd apps/api && cargo watch -x test
 
 # すべてのチェックを実行（フォーマット、リント、テスト、ビルド）
 ci: fmt-check lint test build

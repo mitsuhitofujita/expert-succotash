@@ -7,6 +7,7 @@
     "./features/claude-code": {},
     "./features/just": {}
   },
+  "postCreateCommand": "cargo install cargo-watch",
   "customizations": {
     "vscode": {
       "extensions": [
