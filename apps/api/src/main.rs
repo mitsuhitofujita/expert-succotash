@@ -1,9 +1,16 @@
 mod error;
+mod handlers;
+mod models;
+mod store;
 
-use axum::{Json, Router, routing::get};
+use axum::{
+    Json, Router,
+    routing::{delete, get, post, put},
+};
 use error::Result;
 use serde::Serialize;
 use std::net::SocketAddr;
+use store::TodoStore;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -73,9 +80,20 @@ async fn main() -> Result<()> {
 
     tracing::info!("Starting API server");
 
+    // データストアの初期化
+    let store = TodoStore::new();
+
     // ルーティングの設定
     #[cfg_attr(not(any(debug_assertions, test)), allow(unused_mut))]
-    let mut app = Router::new().route("/health", get(health_check));
+    let mut app = Router::new()
+        .route("/health", get(health_check))
+        // Todo CRUD エンドポイント
+        .route("/todos", get(handlers::get_todos))
+        .route("/todos", post(handlers::create_todo))
+        .route("/todos/{id}", get(handlers::get_todo))
+        .route("/todos/{id}", put(handlers::update_todo))
+        .route("/todos/{id}", delete(handlers::delete_todo))
+        .with_state(store);
 
     // エラーハンドリングのテスト用エンドポイント（デバッグビルドまたはテスト環境でのみ有効）
     #[cfg(any(debug_assertions, test))]
