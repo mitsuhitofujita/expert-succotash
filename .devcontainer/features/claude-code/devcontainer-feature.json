@@ -1,0 +1,7 @@
+{
+	"id": "claude-code",
+	"version": "0.0.1",
+	"name": "claude-code",
+	"description": "Installs Claude Code, an AI-powered code assistant by Anthropic.",
+	"installsAfter": ["node"]
+}
