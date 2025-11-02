@@ -1,0 +1,43 @@
+# Clippy設定ファイル
+# プロジェクト固有のlintルールを定義
+
+# 認知的複雑度の閾値（デフォルト: 25）
+cognitive-complexity-threshold = 30
+
+# 関数の引数の最大数（デフォルト: 7）
+# APIハンドラーでは多くの依存性を注入することがあるため、やや緩めに設定
+too-many-arguments-threshold = 8
+
+# 構造体のboolフィールドの最大数（デフォルト: 3）
+max-struct-bools = 4
+
+# 型の複雑度の閾値（デフォルト: 250）
+type-complexity-threshold = 300
+
+# 関数の最大行数（デフォルト: 100）
+too-many-lines-threshold = 120
+
+# ドキュメントコメントで許可する識別子
+# Web APIプロジェクトでよく使用される技術用語を追加
+doc-valid-idents = [
+    "API",
+    "HTTP",
+    "HTTPS",
+    "JSON",
+    "REST",
+    "URL",
+    "UUID",
+    "SQL",
+    "CRUD",
+    "DTO",
+    "JWT",
+    "OAuth",
+]
+
+# 禁止する型（使用を避けるべき型）
+# プロジェクトで使用を避けるべき型があれば追加
+disallowed-types = []
+
+# 禁止するメソッド（使用を避けるべきメソッド）
+# 例: unwrap()の使用を避けたい場合など
+disallowed-methods = []
