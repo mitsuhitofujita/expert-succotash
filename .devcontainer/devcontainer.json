@@ -9,7 +9,7 @@
     "./features/claude-code": {},
     "./features/just": {}
   },
-  "postCreateCommand": "cargo install cargo-watch sqlx-cli --no-default-features --features rustls,postgres",
+  "postCreateCommand": "cargo install cargo-watch sqlx-cli --no-default-features --features postgres,rustls",
   "forwardPorts": [
     3000,
     5432
