@@ -25,6 +25,14 @@ run:
 dev:
     cd apps/api && cargo watch -x run
 
+# データベース接続確認（開発用DB）
+check-db:
+    cargo run -p check-db
+
+# データベース接続確認（テスト用DB）
+check-db-test:
+    DATABASE_URL="${TEST_DATABASE_URL}" cargo run -p check-db
+
 # APIサーバーの起動確認（ビルド → 起動 → ヘルスチェック）
 check-server:
     #!/usr/bin/env bash

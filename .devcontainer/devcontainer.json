@@ -1,20 +1,27 @@
 {
   "name": "Rust Development Container",
-  "image": "mcr.microsoft.com/devcontainers/rust:1",
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
   "features": {
     "ghcr.io/devcontainers/features/node": {},
     "ghcr.io/devcontainers/features/github-cli": {},
     "./features/claude-code": {},
     "./features/just": {}
   },
-  "postCreateCommand": "cargo install cargo-watch",
+  "postCreateCommand": "cargo install cargo-watch sqlx-cli --no-default-features --features rustls,postgres",
+  "forwardPorts": [
+    3000,
+    5432
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb",
         "tamasfe.even-better-toml",
-        "fill-labs.dependi"
+        "fill-labs.dependi",
+        "anthropic.claude-code"
       ],
       "settings": {
         "rust-analyzer.checkOnSave.command": "clippy",
