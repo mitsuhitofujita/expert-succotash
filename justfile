@@ -33,6 +33,40 @@ check-db:
 check-db-test:
     DATABASE_URL="${TEST_DATABASE_URL}" cargo run -p check-db
 
+# データベースの作成
+db-create:
+    cd apps/api && sqlx database create
+
+# データベースの削除
+db-drop:
+    cd apps/api && sqlx database drop -y
+
+# マイグレーションの実行
+db-migrate:
+    cd apps/api && sqlx migrate run --source db/migrations
+
+# マイグレーションのロールバック（最後の1つ）
+db-migrate-revert:
+    cd apps/api && sqlx migrate revert --source db/migrations
+
+# 新しいマイグレーションファイルの作成
+db-migrate-add name:
+    cd apps/api && sqlx migrate add {{name}} --source db/migrations
+
+# データベースのリセット（削除 → 作成 → マイグレーション）
+db-reset:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PROJECT_ROOT="{{justfile_directory()}}"
+    cd "$PROJECT_ROOT/apps/api"
+    echo "Dropping database..."
+    sqlx database drop -y || true
+    echo "Creating database..."
+    sqlx database create
+    echo "Running migrations..."
+    sqlx migrate run --source db/migrations
+    echo "Database reset completed successfully"
+
 # APIサーバーの起動確認（ビルド → 起動 → ヘルスチェック）
 check-server:
     #!/usr/bin/env bash
