@@ -6,8 +6,8 @@ async fn main() -> Result<()> {
     println!("=== Database Connection Checker ===\n");
 
     // Get DATABASE_URL from environment
-    let database_url = std::env::var("DATABASE_URL")
-        .context("DATABASE_URL environment variable is not set")?;
+    let database_url =
+        std::env::var("DATABASE_URL").context("DATABASE_URL environment variable is not set")?;
 
     println!("Connecting to database...");
     println!("URL: {}\n", mask_password(&database_url));
@@ -49,15 +49,14 @@ async fn main() -> Result<()> {
 
 /// Mask password in database URL for security
 fn mask_password(url: &str) -> String {
-    if let Some(at_pos) = url.rfind('@') {
-        if let Some(colon_pos) = url[..at_pos].rfind(':') {
-            if let Some(protocol_end) = url.find("://") {
-                let protocol_part = &url[..protocol_end + 3];
-                let user_part = &url[protocol_end + 3..colon_pos + 1];
-                let host_part = &url[at_pos..];
-                return format!("{protocol_part}{user_part}****{host_part}");
-            }
-        }
+    if let Some(at_pos) = url.rfind('@')
+        && let Some(colon_pos) = url[..at_pos].rfind(':')
+        && let Some(protocol_end) = url.find("://")
+    {
+        let protocol_part = &url[..protocol_end + 3];
+        let user_part = &url[(protocol_end + 3)..=colon_pos];
+        let host_part = &url[at_pos..];
+        return format!("{protocol_part}{user_part}****{host_part}");
     }
     url.to_string()
 }

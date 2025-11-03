@@ -60,25 +60,25 @@ check-server:
     wait $SERVER_PID 2>/dev/null || true
     exit $RESULT
 
-# コードフォーマット
+# コードフォーマット（ワークスペース全体）
 fmt:
-    cd apps/api && cargo fmt
+    cargo fmt --all
 
-# コードフォーマットのチェック
+# コードフォーマットのチェック（ワークスペース全体）
 fmt-check:
-    cd apps/api && cargo fmt --check
+    cargo fmt --all --check
 
-# リンターの実行
+# リンターの実行（ワークスペース全体）
 lint:
-    cd apps/api && cargo clippy --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery
+    cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery
 
 # リンターの監視モード（ファイル変更時に自動実行）
 watch-lint:
     cd apps/api && cargo watch -x 'clippy --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery'
 
-# テストの実行
+# テストの実行（ワークスペース全体）
 test:
-    cd apps/api && cargo test
+    cargo test --workspace
 
 # テストの監視モード（ファイル変更時に自動実行）
 watch-test:
