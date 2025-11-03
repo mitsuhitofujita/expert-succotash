@@ -1,68 +1,8 @@
-mod error;
-mod handlers;
-mod models;
-mod store;
-
-use axum::{
-    Json, Router,
-    routing::{delete, get, post, put},
-};
-use error::Result;
-use serde::Serialize;
+use api::{create_router, error::Result, store::TodoStore};
 use std::net::SocketAddr;
-use store::TodoStore;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
-use tracing::Level;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-#[derive(Serialize)]
-struct HealthResponse {
-    status: String,
-}
-
-async fn health_check() -> Result<Json<HealthResponse>> {
-    tracing::info!("Health check endpoint called");
-    Ok(Json(HealthResponse {
-        status: "ok".to_string(),
-    }))
-}
-
-/// エラーハンドリングのテスト用エンドポイント
-/// デバッグビルドまたはテスト環境でのみ有効
-#[cfg(any(debug_assertions, test))]
-async fn test_error_internal() -> Result<Json<HealthResponse>> {
-    Err(error::AppError::InternalServerError(
-        "This is a test internal error".to_string(),
-    ))
-}
-
-#[cfg(any(debug_assertions, test))]
-async fn test_error_validation() -> Result<Json<HealthResponse>> {
-    Err(error::AppError::ValidationError(
-        "Invalid input provided".to_string(),
-    ))
-}
-
-#[cfg(any(debug_assertions, test))]
-async fn test_error_unauthorized() -> Result<Json<HealthResponse>> {
-    Err(error::AppError::Unauthorized(
-        "Invalid credentials".to_string(),
-    ))
-}
-
-#[cfg(any(debug_assertions, test))]
-async fn test_error_notfound() -> Result<Json<HealthResponse>> {
-    Err(error::AppError::NotFound("Resource not found".to_string()))
-}
-
-#[cfg(any(debug_assertions, test))]
-async fn test_error_badrequest() -> Result<Json<HealthResponse>> {
-    Err(error::AppError::BadRequest(
-        "Invalid request format".to_string(),
-    ))
-}
-
-/// tracingの初期化
+/// Initialize tracing
 fn init_tracing() {
     tracing_subscriber::registry()
         .with(
@@ -75,50 +15,22 @@ fn init_tracing() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // tracingの初期化
+    // Initialize tracing
     init_tracing();
 
     tracing::info!("Starting API server");
 
-    // データストアの初期化
+    // Initialize data store
     let store = TodoStore::new();
 
-    // ルーティングの設定
-    #[cfg_attr(not(any(debug_assertions, test)), allow(unused_mut))]
-    let mut app = Router::new()
-        .route("/health", get(health_check))
-        // Todo CRUD エンドポイント
-        .route("/todos", get(handlers::get_todos))
-        .route("/todos", post(handlers::create_todo))
-        .route("/todos/{id}", get(handlers::get_todo))
-        .route("/todos/{id}", put(handlers::update_todo))
-        .route("/todos/{id}", delete(handlers::delete_todo))
-        .with_state(store);
+    // Create router
+    let app = create_router(store);
 
-    // エラーハンドリングのテスト用エンドポイント（デバッグビルドまたはテスト環境でのみ有効）
-    #[cfg(any(debug_assertions, test))]
-    {
-        tracing::warn!("Test error endpoints are enabled (debug/test mode only)");
-        app = app
-            .route("/test/error/internal", get(test_error_internal))
-            .route("/test/error/validation", get(test_error_validation))
-            .route("/test/error/unauthorized", get(test_error_unauthorized))
-            .route("/test/error/notfound", get(test_error_notfound))
-            .route("/test/error/badrequest", get(test_error_badrequest));
-    }
-
-    // HTTPリクエスト/レスポンスのトレーシングを追加
-    let app = app.layer(
-        TraceLayer::new_for_http()
-            .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
-            .on_response(DefaultOnResponse::new().level(Level::INFO)),
-    );
-
-    // サーバーアドレスの設定
+    // Configure server address
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::info!("Server listening on {}", addr);
 
-    // サーバーの起動
+    // Start server
     let listener = tokio::net::TcpListener::bind(addr).await?;
 
     axum::serve(listener, app).await?;

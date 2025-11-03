@@ -10,7 +10,8 @@ pub struct TodoStore {
 }
 
 impl TodoStore {
-    /// 新しい `TodoStore` を作成
+    /// Create a new `TodoStore`
+    #[must_use]
     pub fn new() -> Self {
         Self {
             todos: Arc::new(Mutex::new(HashMap::new())),
@@ -18,19 +19,30 @@ impl TodoStore {
         }
     }
 
-    /// 全Todoを取得
+    /// Get all todos
+    ///
+    /// # Panics
+    /// Panics if the mutex is poisoned
+    #[must_use]
     pub fn get_all(&self) -> Vec<Todo> {
         let todos = self.todos.lock().unwrap();
         todos.values().cloned().collect()
     }
 
-    /// ID で `Todo` を取得
+    /// Get a `Todo` by ID
+    ///
+    /// # Panics
+    /// Panics if the mutex is poisoned
+    #[must_use]
     pub fn get_by_id(&self, id: u64) -> Option<Todo> {
         let todos = self.todos.lock().unwrap();
         todos.get(&id).cloned()
     }
 
-    /// 新しい `Todo` を作成
+    /// Create a new `Todo`
+    ///
+    /// # Panics
+    /// Panics if the mutex is poisoned
     pub fn create(&self, title: String, description: Option<String>) -> Todo {
         let mut next_id = self.next_id.lock().unwrap();
         let id = *next_id;
@@ -50,7 +62,10 @@ impl TodoStore {
         todo
     }
 
-    /// `Todo` を更新
+    /// Update a `Todo`
+    ///
+    /// # Panics
+    /// Panics if the mutex is poisoned
     pub fn update(
         &self,
         id: u64,
@@ -78,7 +93,10 @@ impl TodoStore {
         }
     }
 
-    /// `Todo` を削除
+    /// Delete a `Todo`
+    ///
+    /// # Panics
+    /// Panics if the mutex is poisoned
     pub fn delete(&self, id: u64) -> bool {
         let mut todos = self.todos.lock().unwrap();
         if todos.remove(&id).is_some() {

@@ -6,14 +6,20 @@ use axum::{
     extract::{Path, State},
 };
 
-/// GET /todos - すべてのTodoを取得
+/// GET /api/todos - Get all todos
+///
+/// # Errors
+/// Returns an error if the operation fails
 pub async fn get_todos(State(store): State<TodoStore>) -> Result<Json<Vec<Todo>>> {
     tracing::debug!("Fetching all todos");
     let todos = store.get_all();
     Ok(Json(todos))
 }
 
-/// GET /todos/:id - 特定のTodoを取得
+/// GET /api/todos/:id - Get a specific todo by ID
+///
+/// # Errors
+/// Returns `NotFound` error if the todo with the specified ID does not exist
 pub async fn get_todo(State(store): State<TodoStore>, Path(id): Path<u64>) -> Result<Json<Todo>> {
     tracing::debug!(todo_id = id, "Fetching todo by id");
 
@@ -23,21 +29,28 @@ pub async fn get_todo(State(store): State<TodoStore>, Path(id): Path<u64>) -> Re
         .ok_or_else(|| AppError::NotFound(format!("Todo with id {id} not found")))
 }
 
-/// POST /todos - 新しいTodoを作成
+/// POST /api/todos - Create a new todo
+///
+/// # Errors
+/// Returns `ValidationError` if the payload validation fails
 pub async fn create_todo(
     State(store): State<TodoStore>,
     Json(payload): Json<CreateTodoRequest>,
 ) -> Result<Json<Todo>> {
     tracing::debug!(title = %payload.title, "Creating new todo");
 
-    // バリデーション
+    // Validation
     payload.validate().map_err(AppError::ValidationError)?;
 
     let todo = store.create(payload.title, payload.description);
     Ok(Json(todo))
 }
 
-/// PUT /todos/:id - Todoを更新
+/// PUT /api/todos/:id - Update an existing todo
+///
+/// # Errors
+/// Returns `ValidationError` if the payload validation fails,
+/// or `NotFound` if the todo with the specified ID does not exist
 pub async fn update_todo(
     State(store): State<TodoStore>,
     Path(id): Path<u64>,
@@ -45,7 +58,7 @@ pub async fn update_todo(
 ) -> Result<Json<Todo>> {
     tracing::debug!(todo_id = id, "Updating todo");
 
-    // バリデーション
+    // Validation
     payload.validate().map_err(AppError::ValidationError)?;
 
     store
@@ -54,7 +67,10 @@ pub async fn update_todo(
         .ok_or_else(|| AppError::NotFound(format!("Todo with id {id} not found")))
 }
 
-/// DELETE /todos/:id - Todoを削除
+/// DELETE /api/todos/:id - Delete a todo by ID
+///
+/// # Errors
+/// Returns `NotFound` error if the todo with the specified ID does not exist
 pub async fn delete_todo(
     State(store): State<TodoStore>,
     Path(id): Path<u64>,
