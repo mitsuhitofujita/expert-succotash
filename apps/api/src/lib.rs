@@ -1,3 +1,4 @@
+pub mod db;
 pub mod error;
 pub mod handlers;
 pub mod models;
@@ -7,6 +8,7 @@ use axum::{
     Json, Router,
     routing::{delete, get, post, put},
 };
+pub use db::init_db_pool;
 use error::Result;
 use serde::Serialize;
 pub use store::TodoStore;

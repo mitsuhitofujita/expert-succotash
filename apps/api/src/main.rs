@@ -1,4 +1,4 @@
-use api::{create_router, error::Result, store::TodoStore};
+use api::{create_router, error::Result, init_db_pool, store::TodoStore};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -20,7 +20,17 @@ async fn main() -> Result<()> {
 
     tracing::info!("Starting API server");
 
-    // Initialize data store
+    // Initialize database connection pool
+    let _db_pool = init_db_pool().await.map_err(|e| {
+        tracing::error!("Failed to initialize database connection pool: {e}");
+        std::io::Error::other(format!("Database connection failed: {e}"))
+    })?;
+
+    tracing::info!("Database connection pool established");
+    // NOTE: db_pool will be used as application state in future tasks
+    // For now, we continue using TodoStore (in-memory)
+
+    // Initialize data store (will be replaced with database in future)
     let store = TodoStore::new();
 
     // Create router

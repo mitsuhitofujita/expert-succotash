@@ -1,0 +1,2 @@
+# This directory contains database migration files managed by sqlx-cli
+# Migration files are automatically generated using: just db-migrate-add <name>
