@@ -33,6 +33,10 @@ check-db:
 check-db-test:
     DATABASE_URL="${TEST_DATABASE_URL}" cargo run -p check-db
 
+# データベースのテーブル一覧を表示
+list-tables:
+    cargo run -p list-tables
+
 # データベースの作成
 db-create:
     cd apps/api && sqlx database create
