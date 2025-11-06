@@ -2,6 +2,7 @@ pub mod db;
 pub mod error;
 pub mod handlers;
 pub mod models;
+pub mod repository;
 pub mod store;
 
 use axum::{
@@ -10,6 +11,7 @@ use axum::{
 };
 pub use db::init_db_pool;
 use error::Result;
+pub use repository::{AttendanceEventRepository, UserRepository};
 use serde::Serialize;
 pub use store::TodoStore;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};

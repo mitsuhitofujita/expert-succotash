@@ -1,4 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 /// Todo リソースのデータモデル
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -7,6 +9,56 @@ pub struct Todo {
     pub title: String,
     pub description: Option<String>,
     pub completed: bool,
+}
+
+/// User entity from database
+/// Matches the schema in `20251104145951_create_users_table.sql`
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+    pub email: String,
+    pub picture: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    // Note: deleted_at is used internally for soft delete but not exposed in public API
+}
+
+/// User creation request
+#[derive(Debug, Deserialize)]
+pub struct CreateUser {
+    pub name: String,
+    pub email: String,
+    pub picture: Option<String>,
+}
+
+/// User update request
+#[derive(Debug, Deserialize)]
+pub struct UpdateUser {
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub picture: Option<String>,
+}
+
+/// Attendance event entity from database
+/// Matches the schema in `20251105142320_create_attendance_events.sql`
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AttendanceEvent {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub event_type: String,
+    pub event_time: DateTime<Utc>,
+    pub recorded_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Attendance event creation request
+#[derive(Debug, Deserialize)]
+pub struct CreateAttendanceEvent {
+    pub user_id: Uuid,
+    pub event_type: String,
+    pub event_time: DateTime<Utc>,
+    // Note: recorded_at and created_at are set by the server
 }
 
 /// Todo作成時のリクエストボディ

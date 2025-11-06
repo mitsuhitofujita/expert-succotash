@@ -106,3 +106,10 @@ impl From<serde_json::Error> for AppError {
         Self::BadRequest(format!("Invalid JSON: {err}"))
     }
 }
+
+impl From<sqlx::Error> for AppError {
+    fn from(err: sqlx::Error) -> Self {
+        tracing::error!(error = %err, "Database error occurred");
+        Self::InternalServerError("Database error".to_string())
+    }
+}
