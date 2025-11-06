@@ -2,4 +2,3 @@
 .agent/
 
 **/target/
-**/.sqlx/

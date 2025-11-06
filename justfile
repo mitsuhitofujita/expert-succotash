@@ -71,6 +71,14 @@ db-reset:
     sqlx migrate run --source db/migrations
     echo "Database reset completed successfully"
 
+# sqlxのオフラインモードデータを生成（マイグレーション変更時やクエリ追加時に実行）
+sqlx-prepare:
+    cd apps/api && cargo sqlx prepare
+
+# sqlxのオフラインモードデータが最新か確認（CI用）
+sqlx-check:
+    cd apps/api && cargo sqlx prepare --check
+
 # APIサーバーの起動確認（ビルド → 起動 → ヘルスチェック）
 check-server:
     #!/usr/bin/env bash
