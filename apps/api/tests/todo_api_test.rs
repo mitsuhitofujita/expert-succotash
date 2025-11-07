@@ -8,9 +8,16 @@ use serde_json::{Value, json};
 use tower::ServiceExt;
 
 /// Helper function to create the test app
-fn create_app() -> Router {
+async fn create_app() -> Router {
     let store = api::TodoStore::new();
-    api::create_router(store)
+
+    // Initialize test database pool
+    // Note: Tests require a running PostgreSQL instance with TEST_DATABASE_URL set
+    let pool = api::init_db_pool()
+        .await
+        .expect("Failed to initialize test database pool");
+
+    api::create_router(store, pool)
 }
 
 /// Helper function to parse JSON response body
@@ -21,7 +28,7 @@ async fn parse_json_body(body: Body) -> Value {
 
 #[tokio::test]
 async fn test_health_check() {
-    let app = create_app();
+    let app = create_app().await;
 
     let response = app
         .oneshot(
@@ -41,7 +48,7 @@ async fn test_health_check() {
 
 #[tokio::test]
 async fn test_create_todo() {
-    let app = create_app();
+    let app = create_app().await;
 
     let payload = json!({
         "title": "Test Todo",
@@ -71,7 +78,7 @@ async fn test_create_todo() {
 
 #[tokio::test]
 async fn test_create_todo_validation_empty_title() {
-    let app = create_app();
+    let app = create_app().await;
 
     let payload = json!({
         "title": "   ",
@@ -95,7 +102,7 @@ async fn test_create_todo_validation_empty_title() {
 
 #[tokio::test]
 async fn test_create_todo_validation_title_too_long() {
-    let app = create_app();
+    let app = create_app().await;
 
     let long_title = "a".repeat(201);
     let payload = json!({
@@ -120,7 +127,7 @@ async fn test_create_todo_validation_title_too_long() {
 
 #[tokio::test]
 async fn test_get_all_todos_empty() {
-    let app = create_app();
+    let app = create_app().await;
 
     let response = app
         .oneshot(
@@ -141,7 +148,7 @@ async fn test_get_all_todos_empty() {
 
 #[tokio::test]
 async fn test_get_all_todos_with_items() {
-    let app = create_app();
+    let app = create_app().await;
 
     // Create first todo
     let payload1 = json!({
@@ -202,7 +209,7 @@ async fn test_get_all_todos_with_items() {
 
 #[tokio::test]
 async fn test_get_todo_by_id() {
-    let app = create_app();
+    let app = create_app().await;
 
     // Create a todo
     let payload = json!({
@@ -247,7 +254,7 @@ async fn test_get_todo_by_id() {
 
 #[tokio::test]
 async fn test_get_todo_not_found() {
-    let app = create_app();
+    let app = create_app().await;
 
     let response = app
         .oneshot(
@@ -264,7 +271,7 @@ async fn test_get_todo_not_found() {
 
 #[tokio::test]
 async fn test_update_todo() {
-    let app = create_app();
+    let app = create_app().await;
 
     // Create a todo
     let payload = json!({
@@ -317,7 +324,7 @@ async fn test_update_todo() {
 
 #[tokio::test]
 async fn test_update_todo_not_found() {
-    let app = create_app();
+    let app = create_app().await;
 
     let update_payload = json!({
         "title": "Updated Title"
@@ -340,7 +347,7 @@ async fn test_update_todo_not_found() {
 
 #[tokio::test]
 async fn test_update_todo_validation() {
-    let app = create_app();
+    let app = create_app().await;
 
     // Create a todo
     let payload = json!({
@@ -385,7 +392,7 @@ async fn test_update_todo_validation() {
 
 #[tokio::test]
 async fn test_delete_todo() {
-    let app = create_app();
+    let app = create_app().await;
 
     // Create a todo
     let payload = json!({
@@ -447,7 +454,7 @@ async fn test_delete_todo() {
 
 #[tokio::test]
 async fn test_delete_todo_not_found() {
-    let app = create_app();
+    let app = create_app().await;
 
     let response = app
         .oneshot(
@@ -465,7 +472,7 @@ async fn test_delete_todo_not_found() {
 
 #[tokio::test]
 async fn test_full_crud_workflow() {
-    let app = create_app();
+    let app = create_app().await;
 
     // 1. Create a todo
     let create_payload = json!({

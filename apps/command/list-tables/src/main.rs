@@ -3,6 +3,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::Row;
 
 #[tokio::main]
+#[allow(clippy::too_many_lines)]
 async fn main() -> Result<()> {
     println!("=== Database Tables List ===\n");
 
@@ -113,7 +114,7 @@ async fn main() -> Result<()> {
     println!();
 
     // Get table constraints (primary keys, unique constraints, foreign keys)
-    let constraints_query = r#"
+    let constraints_query = r"
         SELECT
             tc.table_name,
             tc.constraint_name,
@@ -129,7 +130,7 @@ async fn main() -> Result<()> {
             tc.table_schema NOT IN ('pg_catalog', 'information_schema')
         ORDER BY
             tc.table_name, tc.constraint_type, kcu.ordinal_position
-    "#;
+    ";
 
     let constraint_rows = sqlx::query(constraints_query)
         .fetch_all(&pool)
@@ -161,7 +162,7 @@ async fn main() -> Result<()> {
 
     // Get indexes
     println!();
-    let indexes_query = r#"
+    let indexes_query = r"
         SELECT
             tablename,
             indexname,
@@ -172,7 +173,7 @@ async fn main() -> Result<()> {
             schemaname NOT IN ('pg_catalog', 'information_schema')
         ORDER BY
             tablename, indexname
-    "#;
+    ";
 
     let index_rows = sqlx::query(indexes_query)
         .fetch_all(&pool)

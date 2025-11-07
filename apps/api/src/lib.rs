@@ -13,6 +13,7 @@ pub use db::init_db_pool;
 use error::Result;
 pub use repository::{AttendanceEventRepository, UserRepository};
 use serde::Serialize;
+use sqlx::PgPool;
 pub use store::TodoStore;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
@@ -66,18 +67,32 @@ async fn test_error_badrequest() -> Result<Json<HealthResponse>> {
 
 /// Create the application router
 /// This function is public to allow testing
-pub fn create_router(store: TodoStore) -> Router {
+///
+/// # Arguments
+/// * `store` - `TodoStore` for in-memory todo operations
+/// * `pool` - Database connection pool for user operations
+pub fn create_router(store: TodoStore, pool: PgPool) -> Router {
+    // Create repositories
+    let user_repo = UserRepository::new(pool);
+
     // Router configuration
     #[cfg_attr(not(any(debug_assertions, test)), allow(unused_mut))]
     let mut app = Router::new()
         .route("/health", get(health_check))
-        // Todo CRUD endpoints
+        // Todo CRUD endpoints (using TodoStore state)
         .route("/api/todos", get(handlers::get_todos))
         .route("/api/todos", post(handlers::create_todo))
         .route("/api/todos/{id}", get(handlers::get_todo))
         .route("/api/todos/{id}", put(handlers::update_todo))
         .route("/api/todos/{id}", delete(handlers::delete_todo))
-        .with_state(store);
+        .with_state(store)
+        // User CRUD endpoints (using UserRepository state)
+        .route("/api/users", get(handlers::get_users))
+        .route("/api/users", post(handlers::create_user))
+        .route("/api/users/{id}", get(handlers::get_user))
+        .route("/api/users/{id}", put(handlers::update_user))
+        .route("/api/users/{id}", delete(handlers::delete_user))
+        .with_state(user_repo);
 
     // Error handling test endpoints (only available in debug builds or test environments)
     #[cfg(any(debug_assertions, test))]
