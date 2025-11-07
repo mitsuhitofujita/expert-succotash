@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
-use sqlx::postgres::PgPoolOptions;
 use sqlx::Row;
+use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 #[allow(clippy::too_many_lines)]
@@ -69,9 +69,8 @@ async fn main() -> Result<()> {
                 }
 
                 // Get table comment
-                let table_comment_query = format!(
-                    "SELECT obj_description('{table_name}'::regclass)"
-                );
+                let table_comment_query =
+                    format!("SELECT obj_description('{table_name}'::regclass)");
                 let table_comment: Option<String> = sqlx::query_scalar(&table_comment_query)
                     .fetch_one(&pool)
                     .await
@@ -95,7 +94,11 @@ async fn main() -> Result<()> {
             };
 
             // Format nullable
-            let nullable = if is_nullable == "YES" { "NULL" } else { "NOT NULL" };
+            let nullable = if is_nullable == "YES" {
+                "NULL"
+            } else {
+                "NOT NULL"
+            };
 
             // Format default value
             let default = column_default
@@ -155,7 +158,9 @@ async fn main() -> Result<()> {
                 current_table = table_name;
             }
 
-            let column_info = column_name.as_ref().map_or(String::new(), |c| format!(" ({c})"));
+            let column_info = column_name
+                .as_ref()
+                .map_or(String::new(), |c| format!(" ({c})"));
             println!("    - {constraint_type}: {constraint_name}{column_info}");
         }
     }
